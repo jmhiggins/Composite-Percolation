@@ -8,34 +8,45 @@ SKETCHUP_CONSOLE.show
 # Add a menu item to launch the plugin.
 UI.menu("Plugins").add_item("Draw Discs") {
 	UI.messagebox("I'm about to draw discs")
-	
-	# Define a few things
-	POINTS_NUM = 10
-	CUBE_SIZE = 10.0
-		
+			
 	#run some methods
-	draw_discs
+	start_arr = Array.new
+	start_arr = initial_props()
+	draw_discs(start_arr)
 	}
 
+def initial_props
 
-def draw_discs
+	# Method produces an input box requesting info on how to build the model
+
+	prompts = ["How big is the RVE?", "How Many Discs to Create?", "Disc Diameter?", "Disc Thickness?"]
+	defaults = [10.mm, 10, 1.0.mm, 0.1.mm]
+	input = UI.inputbox(prompts, defaults, "Lets Build a Model!!!")
+
+	return input
+	
+end
+	
+def draw_discs(prop_arr)
 	
 	#Create some variables
-	radius = 0.5
-	thickness = 0.1
+	cube_size = prop_arr[0]
+	points_num = prop_arr[1] 
+	radius = prop_arr[2]/2
+	thickness = prop_arr[3]
 	
 	# Create an array of vectors to be used as random points for disc positioning
-	arr = Array.new(POINTS_NUM) {Array.new(3)}
+	arr = Array.new(points_num) {Array.new(3)}
 	
 	# Initiate Pseudo Random Number Generator
 	prng = Random.new
 		
 	# Populate the Array	
-	for step in 0..(POINTS_NUM)
+	for step in 0..(points_num)
 	
-		x = prng.rand(CUBE_SIZE)
-		y = prng.rand(CUBE_SIZE)
-		z = prng.rand(CUBE_SIZE)	
+		x = prng.rand(cube_size)
+		y = prng.rand(cube_size)
+		z = prng.rand(cube_size)	
 		arr[step] = [x,y,z]
 	
 	end
@@ -45,7 +56,7 @@ def draw_discs
 	entities = model.entities
 	
 	# Loop across the same code several times
-	for step in 1..(POINTS_NUM)
+	for step in 1..(points_num)
 		
 		#Calculate a random direction
 		vector = Geom::Vector3d.new 0,0,1
