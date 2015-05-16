@@ -1,7 +1,7 @@
 #------------------------------------------------------------
 # This is a plugin used to create models for calculations on
-# percolative composites.  v1 2015/04/15, Jeremy Higgins 
-# Eventually we will use this model to 
+# percolative composites.  v1.3 2015/05/16, Jeremy Higgins 
+# Eventually I will use this model to run some calculations
 #------------------------------------------------------------
 
 
@@ -108,6 +108,9 @@ pt[7] = [0, edge, edge]
  
 entities = Sketchup.active_model.entities
 
-limitbox = entities.add_edges pt
+limitbox = entities.add_edges pt[0], pt[1], pt[2], pt[3], pt[0], pt[4], pt[5], pt[1]
+limitbox = entities.add_edges pt[5], pt[6], pt[2]
+limitbox = entities.add_edges pt[6], pt[7], pt[3]
+limitbox = entities.add_edges pt[7], pt[4]
 
 end
