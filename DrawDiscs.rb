@@ -1,9 +1,8 @@
-#------------------------------------------------------------
+ #------------------------------------------------------------
 # This is a plugin used to create models for calculations on
 # percolative composites.  v1.3 2015/05/16, Jeremy Higgins 
 # Eventually I will use this model to run some calculations
 #------------------------------------------------------------
-
 
 # First we pull in the standard API hooks.
 require 'sketchup.rb'
@@ -15,17 +14,31 @@ SKETCHUP_CONSOLE.show
 # Add a menu item to launch the plugin.
 UI.menu("Plugins").add_item("Draw Discs") {
 	UI.messagebox("I'm about to draw discs")
-			
-	#run some methods
+		
+	#Run the Methods
+
+	# Setup
 	start_arr = Array.new
 	start_arr = initial_props()
+	prompts = ["Filename = "]
+	defaults = ["Enter Name"]
+	inputname = UI.inputbox(prompts, defaults, "Please Name this File")
+	save_file(inputname)
+	
+	
+	# Main Sequence
 	draw_discs(start_arr)
 	draw_box(start_arr)
+	save_file(inputname)
 	}
 
 def initial_props
+#*******************************
+#
+# Method produces an input box requesting info on how to build the model
+#
+#*******************************
 
-	# Method produces an input box requesting info on how to build the model
 
 	prompts = ["How big is the RVE?", "How Many Discs to Create?", "Disc Diameter?", "Disc Thickness?","Random Disc Orientation"]
 	defaults = [10.mm, 10, 1.0.mm, 0.1.mm, "no"]
@@ -37,7 +50,12 @@ def initial_props
 end
 	
 def draw_discs(prop_arr)
-		
+#*******************************
+#
+#Program which draws the discs
+#
+#*******************************
+
 	#Create some variables based on the inputted array
 	cube_size = prop_arr[0]
 	points_num = prop_arr[1] - 1
@@ -51,7 +69,7 @@ def draw_discs(prop_arr)
 	
 	# Initiate Pseudo Random Number Generator
 	prng = Random.new
-		
+	
 	# Populate one or both arrays as necessary
 	for step in 0..(points_num)
 		x = prng.rand(cube_size)
@@ -71,7 +89,7 @@ def draw_discs(prop_arr)
 			dirarr[step] = [dirx, diry, dirz]
 		end
 	end
-		
+	
 	# Get "handles" to our model and the Entities collection it contains
 	model = Sketchup.active_model
 	entities = model.entities
@@ -87,12 +105,15 @@ def draw_discs(prop_arr)
 		new_circle = entities.add_face(new_circleedges)
 		new_circle.pushpull thickness
 	end
-		
+	
 end
 
 def draw_box(prop_arr)
-
+#*******************************
+#
 # Adds RVE Limits as lines...i.e. adds a box around the unit cell
+#
+#*******************************
 
 edge = prop_arr[0]
 pt = Array.new
@@ -105,12 +126,28 @@ pt[5] = [edge, 0, edge]
 pt[6] = [edge, edge, edge]
 pt[7] = [0, edge, edge]
 
- 
 entities = Sketchup.active_model.entities
 
 limitbox = entities.add_edges pt[0], pt[1], pt[2], pt[3], pt[0], pt[4], pt[5], pt[1]
 limitbox = entities.add_edges pt[5], pt[6], pt[2]
 limitbox = entities.add_edges pt[6], pt[7], pt[3]
 limitbox = entities.add_edges pt[7], pt[4]
+end
+
+def save_file(inputname)
+#*******************************
+#
+#The purpose of this method is to save the file. Dialog to get filename then save it
+#
+#*******************************
+
+	# Handle for the model
+	model = Sketchup.active_model
+
+	# Actually perform save operation
+	filename = File.join('C:\Github', 'Composite-Percolation', inputname)
+	status = model.save(filename)
+	
+	return inputname
 
 end
