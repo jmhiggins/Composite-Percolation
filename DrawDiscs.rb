@@ -17,19 +17,46 @@ UI.menu("Plugins").add_item("Draw Discs") {
 		
 	#Run the Methods
 
-	# Setup
+	# SETUP SEQUENCE
+	
+	# Handle for the model
+	model = Sketchup.active_model
+	entities = model.entities
+	
+	# Number of Models to setup sequentially
+	prompts = ["Number of Runs = "]
+	defaults = [1]
+	numpass = UI.inputbox(prompts, defaults, "How Many Runs?")
+		
+	#Initialize the matrix of starting conditions
 	start_arr = Array.new
-	start_arr = initial_props()
-	prompts = ["Filename = "]
-	defaults = ["Enter Name"]
-	inputname = UI.inputbox(prompts, defaults, "Please Name this File")
-	save_file(inputname)
+	runseq_arr = Array.new {start_arr}
 	
+	#Fill out the starting condition matrix
+	for step in 1..(numpass[0]) 
 	
-	# Main Sequence
-	draw_discs(start_arr)
-	draw_box(start_arr)
-	save_file(inputname)
+		start_arr = initial_props()
+		runseq_arr[step-1] = start_arr
+		prompts = ["Filename = "]
+		defaults = ["Enter Name"]
+		inputname = UI.inputbox(prompts, defaults, "Please Name this File")
+		start_arr[5] = inputname
+		save_file(inputname)
+	
+	end
+	
+	# MAIN SEQUENCE
+	
+	#Repeat Main sequence for each defined set of starting conditions in the starting conditions matrix
+	for step in 1..(numpass[0])
+		pass_arr = runseq_arr[step-1]
+		draw_discs(pass_arr)
+		draw_box(pass_arr)
+		save_file(pass_arr[5])
+		unless step = numpass[0]
+			status = entities.clear!  #Clear the view by clearing entities collection
+		end
+	end
 	}
 
 def initial_props
